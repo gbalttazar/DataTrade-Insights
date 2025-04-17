@@ -1,4 +1,5 @@
 from etl import carregar_dados
+import pandas as pd
 
 print("🚀 Iniciando script...")
 
@@ -12,6 +13,10 @@ def gerar_relatorio():
     if df.empty:
         print("⚠️ DataFrame está vazio. Verifique se o arquivo foi carregado corretamente.")
         return
+
+    # ✅ Conversão extra de segurança
+    df['VL_FOB'] = pd.to_numeric(df['VL_FOB'], errors='coerce')
+    df = df[df['VL_FOB'].notnull()]  # remove NaN após conversão
 
     # Verifica os valores únicos na coluna 'CO_ANO' para garantir que todos os anos estão presentes
     anos_unicos = df['CO_ANO'].unique()

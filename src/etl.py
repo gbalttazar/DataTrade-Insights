@@ -1,21 +1,24 @@
 import pandas as pd
 
 def carregar_dados():
-    caminho_arquivo = "data/BRAZIL_EXP_CLEAN.csv"
-    
-    # Carregar os dados
-    df = pd.read_csv(caminho_arquivo, sep=";", encoding="latin1")
-    
-    # Excluir linhas onde 'CO_PAIS' ou 'VL_FOB' são nulos
-    df = df.dropna(subset=['CO_PAIS', 'VL_FOB'])
-    
-    # Garantir que 'VL_FOB' seja numérico, forçando a conversão e tratando valores inválidos como NaN
-    df['VL_FOB'] = pd.to_numeric(df['VL_FOB'], errors='coerce')
-    
-    # Remover linhas com valores inválidos ou NaN após conversão
-    df = df.dropna(subset=['VL_FOB'])
-    
-    # Garantir que o tipo da coluna 'CO_ANO' seja inteiro
-    df['CO_ANO'] = df['CO_ANO'].astype(int)
-    
-    return df
+    caminho_arquivo = "data/BRAZIL_EXP_COMPLETE.csv"
+    try:
+        df = pd.read_csv(
+            caminho_arquivo,
+            sep=";",
+            encoding="latin1",
+            on_bad_lines="skip",
+            engine="python",
+            dtype=str
+        )
+        print("✅ Arquivo carregado com sucesso (linhas ruins ignoradas automaticamente).")
+
+        # Conversões e limpezas
+        df = df.dropna(subset=['CO_PAIS'])
+        df = df[df['VL_FOB'].notnull()]
+        df['VL_FOB'] = pd.to_numeric(df['VL_FOB'], errors='coerce')
+
+        return df
+    except Exception as e:
+        print(f"❌ Erro ao carregar CSV: {e}")
+        return pd.DataFrame()
